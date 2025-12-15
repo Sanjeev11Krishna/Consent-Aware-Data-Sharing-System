@@ -1,0 +1,22 @@
+{
+  "name": "consent-aware-data-sharing-system",
+  "version": "1.0.0",
+  "description": "A consent-aware data sharing system with MERN stack",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix consent-ui\"",
+    "start": "concurrently \"npm run start --prefix backend\" \"npm run build --prefix consent-ui && npm run preview --prefix consent-ui\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "consent",
+    "data-sharing",
+    "mern",
+    "privacy"
+  ],
+  "author": "SanjeevKrishna",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
