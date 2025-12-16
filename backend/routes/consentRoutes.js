@@ -1,16 +1,18 @@
 const express = require('express');
-const {
-    requestConsent,
-    getPendingConsentRequests,
-    acceptConsentRequest,
-    declineConsentRequest,
-    getUserConsents,
-    getGrantedConsents,
-    revokeConsent,
-    requestDataAccess
-} = require('../controllers/consentController')
-const auth = require('../middlerware/auth');
+const { 
+  requestConsent,
+  getPendingConsentRequests,
+  acceptConsentRequest,
+  declineConsentRequest,
+  getUserConsents,
+  getGrantedConsents,
+  revokeConsent,
+  requestDataAccess
+} = require('../controllers/consentController');
+const auth = require('../middleware/auth');
+
 const router = express.Router();
+
 router.post('/request', auth, requestConsent);
 router.get('/pending-requests', auth, getPendingConsentRequests);
 router.put('/accept/:consentId', auth, acceptConsentRequest);

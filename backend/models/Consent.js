@@ -29,7 +29,7 @@ const consentSchema = new mongoose.Schema({
     grantedAt: {
         type: Date,
     },
-    expiredAt: {
+    expiresAt: {
         type: Date
     },
     createdAt: {
@@ -43,8 +43,8 @@ const consentSchema = new mongoose.Schema({
 });
 
 consentSchema.pre('save', function(next) {
-    this.updatedAt = Date.now()
-    next()
+    this.updatedAt = Date.now();
+    next();
 });
 
 module.exports = mongoose.model('Consent', consentSchema);

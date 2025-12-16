@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+
 const auditLogSchema = new mongoose.Schema({
   action: {
     type: String,
@@ -12,8 +13,7 @@ const auditLogSchema = new mongoose.Schema({
   },
   requesterId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+    ref: 'User'
   },
   consentId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -38,4 +38,4 @@ const auditLogSchema = new mongoose.Schema({
   }
 });
 
-module.exports = mongoose.model('AuditLog', auditLogSchema)
+module.exports = mongoose.model('AuditLog', auditLogSchema);
