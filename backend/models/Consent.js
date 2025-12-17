@@ -42,9 +42,8 @@ const consentSchema = new mongoose.Schema({
     }
 });
 
-consentSchema.pre('save', function(next) {
+consentSchema.pre('save', function() {
     this.updatedAt = Date.now();
-    next();
 });
 
 module.exports = mongoose.model('Consent', consentSchema);
