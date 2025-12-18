@@ -81,7 +81,9 @@ const ConsentDashboard = () => {
             activeConsentsAsRequester: 0,
             revokedConsentsAsRequester: 0,
             activeConsentsAsGranter: 0,
-            revokedConsentsAsGranter: 0
+            revokedConsentsAsGranter: 0,
+            expiredConsentsAsRequester: 0,
+            expiredConsentsAsGranter: 0
           });
         } else {
           // Fallback for old structure
@@ -117,7 +119,9 @@ const ConsentDashboard = () => {
           activeConsentsAsRequester: 0,
           revokedConsentsAsRequester: 0,
           activeConsentsAsGranter: 0,
-          revokedConsentsAsGranter: 0
+          revokedConsentsAsGranter: 0,
+          expiredConsentsAsRequester: 0,
+          expiredConsentsAsGranter: 0
         });
       } else {
         // Fallback for old structure
@@ -155,7 +159,9 @@ const ConsentDashboard = () => {
           activeConsentsAsRequester: 0,
           revokedConsentsAsRequester: 0,
           activeConsentsAsGranter: 0,
-          revokedConsentsAsGranter: 0
+          revokedConsentsAsGranter: 0,
+          expiredConsentsAsRequester: 0,
+          expiredConsentsAsGranter: 0
         });
       } else {
         // Fallback for old structure
@@ -188,7 +194,9 @@ const ConsentDashboard = () => {
           activeConsentsAsRequester: 0,
           revokedConsentsAsRequester: 0,
           activeConsentsAsGranter: 0,
-          revokedConsentsAsGranter: 0
+          revokedConsentsAsGranter: 0,
+          expiredConsentsAsRequester: 0,
+          expiredConsentsAsGranter: 0
         });
       } else {
         // Fallback for old structure
@@ -238,13 +246,13 @@ const ConsentDashboard = () => {
           className={activeTab === 'my-consents' ? 'tab active' : 'tab'}
           onClick={() => setActiveTab('my-consents')}
         >
-          My Data Access ({consents.filter(c => c.status === 'active').length})
+          My Data Access ({consents.filter(c => ['active', 'expired'].includes(c.status)).length})
         </button>
         <button 
           className={activeTab === 'granted-consents' ? 'tab active' : 'tab'}
           onClick={() => setActiveTab('granted-consents')}
         >
-          Data I'm Sharing ({grantedConsents.filter(c => c.status === 'active').length})
+          Data I'm Sharing ({grantedConsents.filter(c => ['active', 'expired'].includes(c.status)).length})
         </button>
         <button 
           className={activeTab === 'audit' ? 'tab active' : 'tab'}

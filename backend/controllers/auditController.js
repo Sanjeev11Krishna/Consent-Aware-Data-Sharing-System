@@ -17,7 +17,18 @@ const getUserAuditLogs = async (req, res) => {
     .sort({ timestamp: -1 })
     .limit(100);
     
-    // Get consent statistics
+    // Enhance logs with expiration information when available
+    const enhancedLogs = logs.map(log => {
+      if (log.consentId && log.consentId.expiresAt) {
+        return {
+          ...log.toObject(),
+          consentExpiration: log.consentId.expiresAt
+        };
+      }
+      return log.toObject();
+    });
+    
+    // Get consent statistics including expired consents
     const activeConsentsAsRequester = await Consent.countDocuments({
       requester: req.user._id,
       status: 'active'
@@ -38,13 +49,26 @@ const getUserAuditLogs = async (req, res) => {
       status: 'revoked'
     });
     
+    // Count expired consents
+    const expiredConsentsAsRequester = await Consent.countDocuments({
+      requester: req.user._id,
+      status: 'expired'
+    });
+    
+    const expiredConsentsAsGranter = await Consent.countDocuments({
+      granter: req.user._id,
+      status: 'expired'
+    });
+    
     res.json({
-      logs,
+      logs: enhancedLogs,
       consentStats: {
         activeConsentsAsRequester,
         revokedConsentsAsRequester,
         activeConsentsAsGranter,
-        revokedConsentsAsGranter
+        revokedConsentsAsGranter,
+        expiredConsentsAsRequester,
+        expiredConsentsAsGranter
       }
     });
   } catch (error) {
@@ -63,7 +87,18 @@ const getAllAuditLogs = async (req, res) => {
       .sort({ timestamp: -1 })
       .limit(100);
     
-    res.json(logs);
+    // Enhance logs with expiration information when available
+    const enhancedLogs = logs.map(log => {
+      if (log.consentId && log.consentId.expiresAt) {
+        return {
+          ...log.toObject(),
+          consentExpiration: log.consentId.expiresAt
+        };
+      }
+      return log.toObject();
+    });
+    
+    res.json(enhancedLogs);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

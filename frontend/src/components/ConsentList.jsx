@@ -292,6 +292,12 @@ const ConsentList = ({ consents, onRevokeConsent, onRequestData, userType }) => 
                 </div>
               )}
               
+              {userType === 'requester' && consent.status === 'expired' && (
+                <div className="data-request expired-message">
+                  <p>This consent has expired and data access is no longer available.</p>
+                </div>
+              )}
+              
               {userType === 'granter' && consent.status === 'active' && (
                 <button 
                   className="revoke-btn"
@@ -300,6 +306,12 @@ const ConsentList = ({ consents, onRevokeConsent, onRequestData, userType }) => 
                 >
                   {loading ? 'Revoking...' : 'Revoke Access'}
                 </button>
+              )}
+              
+              {userType === 'granter' && consent.status === 'expired' && (
+                <div className="expired-message">
+                  <p>This consent has expired.</p>
+                </div>
               )}
             </div>
           ))}

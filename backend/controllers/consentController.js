@@ -221,12 +221,13 @@ const declineConsentRequest = async (req, res) => {
   }
 };
 
-// Get user's active consents (as requester - consents they've been granted)
+// Get user's consents (as requester - consents they've been granted)
+// Includes active, expired, and revoked consents
 const getUserConsents = async (req, res) => {
   try {
     const consents = await Consent.find({ 
       requester: req.user._id,
-      status: 'active'
+      status: { $in: ['active', 'expired', 'revoked'] }
     })
     .populate('granter', 'name email')
     .sort({ createdAt: -1 });
@@ -239,11 +240,12 @@ const getUserConsents = async (req, res) => {
 };
 
 // Get consents granted by user (as granter - consents they've given to others)
+// Includes active, expired, and revoked consents
 const getGrantedConsents = async (req, res) => {
   try {
     const consents = await Consent.find({ 
       granter: req.user._id,
-      status: 'active'
+      status: { $in: ['active', 'expired', 'revoked'] }
     })
     .populate('requester', 'name email')
     .sort({ createdAt: -1 });
@@ -301,7 +303,7 @@ const requestDataAccess = async (req, res) => {
     
     console.log('Data access request:', { granterId, dataType, userId: req.user._id });
     
-    // Check if consent exists and is active
+    // Check if consent exists and is active (not expired)
     const consent = await Consent.findOne({
       granter: granterId,
       requester: req.user._id,
