@@ -33,6 +33,13 @@ const ConsentRequests = () => {
         return;
       }
 
+      // First try with high accuracy but longer timeout
+      const options = {
+        enableHighAccuracy: true,
+        timeout: 30000, // Increased to 30 seconds
+        maximumAge: 60000 // Accept cached position up to 1 minute old
+      };
+
       navigator.geolocation.getCurrentPosition(
         (position) => {
           resolve({
@@ -43,13 +50,46 @@ const ConsentRequests = () => {
           });
         },
         (error) => {
-          reject(error);
+          // If high accuracy fails, try again with lower accuracy for faster response
+          console.warn('High accuracy location failed, trying with lower accuracy:', error.message);
+          
+          const fallbackOptions = {
+            enableHighAccuracy: false,
+            timeout: 15000,
+            maximumAge: 300000 // Accept cached position up to 5 minutes old
+          };
+          
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              resolve({
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+                accuracy: position.coords.accuracy,
+                timestamp: position.timestamp
+              });
+            },
+            (fallbackError) => {
+              // Provide helpful error messages
+              let errorMessage = 'Unable to retrieve location.';
+              switch(fallbackError.code) {
+                case fallbackError.PERMISSION_DENIED:
+                  errorMessage = 'Location permission denied. Please enable location access in your browser settings.';
+                  break;
+                case fallbackError.POSITION_UNAVAILABLE:
+                  errorMessage = 'Location information is unavailable. Please check your GPS/location services.';
+                  break;
+                case fallbackError.TIMEOUT:
+                  errorMessage = 'Location request timed out. Please try again or check your internet connection.';
+                  break;
+                default:
+                  errorMessage = `Location error: ${fallbackError.message}`;
+              }
+              reject(new Error(errorMessage));
+            },
+            fallbackOptions
+          );
         },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0
-        }
+        options
       );
     });
   };
@@ -77,13 +117,16 @@ const ConsentRequests = () => {
   const handleAccept = async (consentId, requestDataTypes) => {
     try {
       setProcessingRequest(consentId);
+      setError(''); // Clear previous errors
       
       // Collect location data if requested
       let locationData = null;
       if (requestDataTypes.includes('location-data')) {
         try {
+          setError('Requesting location access... This may take up to 30 seconds. Please allow location permission if prompted.');
           locationData = await getLocationData();
           console.log('Location data collected:', locationData);
+          setError(''); // Clear the loading message
         } catch (err) {
           setError(`Failed to get location: ${err.message}`);
           setProcessingRequest(null);
@@ -118,8 +161,9 @@ const ConsentRequests = () => {
       // Remove the accepted request from the list
       setRequests(requests.filter(request => request._id !== consentId));
       setShowDetails(null);
+      setError(''); // Clear any errors
     } catch (err) {
-      setError('Failed to accept consent request');
+      setError('Failed to accept consent request: ' + (err.response?.data?.message || err.message));
       console.error(err);
     } finally {
       setProcessingRequest(null);
@@ -218,7 +262,13 @@ const ConsentRequests = () => {
               {showDetails.dataTypes.includes('location-data') && (
                 <div className="location-warning">
                   <p>⚠️ By accepting this request, you will be prompted to share your current GPS location.</p>
-                  <p>Please ensure location services are enabled for this browser.</p>
+                  <p>📍 <strong>Important:</strong></p>
+                  <ul>
+                    <li>Please ensure location services are enabled for this browser</li>
+                    <li>Click "Allow" when your browser asks for location permission</li>
+                    <li>The process may take up to 30 seconds</li>
+                    <li>If outdoors, location accuracy will be better</li>
+                  </ul>
                 </div>
               )}
               
